@@ -9,10 +9,10 @@ Inspired by
 [How I hacked Slack into a community platform with Typeform](https://levels.io/slack-typeform-auto-invite-sign-ups/)
 and Socket.io's Slack page.
 
-This project supports Heroku, Azure, Cloud Foundry, and Amazon Web Services (AWS).
+This project supports Heroku, Azure, Cloud Foundry, Amazon Web Services (AWS), and [ic.dev](https://ic.dev).
 
 [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
-[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
+[![Deploy to Azure](https://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
 
 ## Settings
 
@@ -81,6 +81,20 @@ Instead of editing `config.js`, take these steps:
 3. Run `aws/deploy.sh` to create the CloudFormation stack and deploy your application, outputting the URL
 4. (Optional) For a friendlier URL, log into the AWS web console and establish a custom domain pointing to the API Gateway stage deployed in step 3.
 
+### [ic.dev](https://ic.dev)
+
+If you haven't already installed the IC CLI, please refer to the [documentation](https://ic.dev/docs/en/installation).
+
+Deploy the `lsuss.slack_inviter` brick directly from the IC Public Index:
+```shell
+$ ic aws up lsuss.slack_inviter slack_inviter --params community_name='Your Community Name',slack_url=yourcommunity.slack.com,slack_token=xoxp-xxx-xxx-xxx-xxx
+```
+
+Retreive the id and url of the API:
+```shell
+$ ic aws value slack_inviter
+```
+
 ## Run
 [Node.js](http://nodejs.org/) is required.
 
@@ -142,10 +156,17 @@ There are two ways to issue the access token.
 
     ![](screenshots/oauth4.gif)
 
-1. Visit <https://slack.com/oauth/authorize?&client_id=CLIENT_ID&team=TEAM_ID&install_redirect=install-on-team&scope=admin+client> in your browser and authorize it.
-    * It authorizes the `client` permission. Otherwise, you can see `{"ok":false,"error":"missing_scope","needed":"client","provided":"admin"}` error.
+1. Visit <https://slack.com/oauth/authorize?&client_id=CLIENT_ID&team=TEAM_ID&install_redirect=install-on-team&scope=admin+client> in your browser and authorize your app.
+    * This form requires the `client` permission. Otherwise, you can see `{"ok":false,"error":"missing_scope","needed":"client","provided":"admin"}` error.
     * Your `TEAM_ID` is the subdomain for your slack team, e.g. myteam.slack.com - your TEAM_ID is `myteam`.
     * Your `CLIENT_ID` found in "Basic Information" section for your App.
+    * You will be shown a `Installed App Settings > OAuth Tokens for Your Team` screen.
+    * You can test auto invites with curl by providing the `OAuth Access Token`.
+    ```sh
+    curl -X POST 'https://myteam.slack.com/api/users.admin.invite' \
+   --data 'email=test@email.com&token=OAuthAccessToken&set_active=true' \
+   --compressed
+   ```
 
     ![](screenshots/basic_info-client_id.png)
 
